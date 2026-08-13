@@ -1,0 +1,13 @@
+.DS_Store
+build/
+cmake-build-*/
+out/
+.vs/
+.idea/
+CMakeUserPresets.json
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
