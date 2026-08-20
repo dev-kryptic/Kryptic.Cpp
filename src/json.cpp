@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <stdexcept>
 
-namespace krypticdev {
+namespace kryptic {
 namespace json {
 namespace {
 
@@ -241,4 +241,4 @@ std::string quote(const std::string& value) {
 }
 
 }  // namespace json
-}  // namespace krypticdev
+}  // namespace kryptic

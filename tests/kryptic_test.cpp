@@ -1,6 +1,6 @@
 // Tests against a mock daemon: a unix-socket server speaking PROTOCOL.md v1.
 
-#include <krypticdev/krypticdev.hpp>
+#include <kryptic/kryptic.hpp>
 
 #include <atomic>
 #include <cstdlib>
@@ -182,7 +182,7 @@ int main() {
             seen = request;
             return "{\"v\":1,\"ok\":true,\"secrets\":[{\"key\":\"INJECTED_KEY\",\"value\":\"from-daemon\"}]}";
         });
-        const auto result = krypticdev::inject();
+        const auto result = kryptic::inject();
         CHECK(!result.skipped);
         CHECK(result.injected == 1);
         const char* value = std::getenv("INJECTED_KEY");
@@ -197,7 +197,7 @@ int main() {
         MockDaemon daemon([](const std::string&) {
             return "{\"v\":1,\"ok\":true,\"secrets\":[{\"key\":\"EXISTING_KEY\",\"value\":\"x\"}]}";
         });
-        const auto result = krypticdev::inject();
+        const auto result = kryptic::inject();
         CHECK(result.injected == 0);
         const char* value = std::getenv("EXISTING_KEY");
         CHECK(value && std::string(value) == "real-env-wins");
@@ -206,7 +206,7 @@ int main() {
     {
         Fixture fx;
         set_env("KRYPTIC_SOCKET_PATH", (fx.project_dir_ / "missing.sock").string().c_str());
-        const auto result = krypticdev::inject();
+        const auto result = kryptic::inject();
         CHECK(result.skipped);
         CHECK(result.reason == "daemon_unreachable");
     }
@@ -214,7 +214,7 @@ int main() {
     {
         Fixture fx;
         set_env("CPP_ENV", "production");
-        const auto result = krypticdev::inject();
+        const auto result = kryptic::inject();
         CHECK(result.skipped);
         CHECK(result.reason == "cpp_env_production");
     }
@@ -222,7 +222,7 @@ int main() {
     {
         Fixture fx;
         set_env("KRYPTIC_DISABLED", "true");
-        const auto result = krypticdev::inject();
+        const auto result = kryptic::inject();
         CHECK(result.skipped);
         CHECK(result.reason == "disabled");
     }
@@ -232,7 +232,7 @@ int main() {
         MockDaemon daemon([](const std::string&) {
             return "{\"v\":1,\"ok\":false,\"error\":\"access_denied\"}";
         });
-        const auto result = krypticdev::inject();
+        const auto result = kryptic::inject();
         CHECK(result.skipped);
         CHECK(result.reason == "access_denied");
     }
@@ -246,7 +246,7 @@ int main() {
             seen = request;
             return "{\"v\":1,\"ok\":true,\"secrets\":[]}";
         });
-        krypticdev::inject();
+        kryptic::inject();
         CHECK(seen.find("proj_override0001") != std::string::npos);
         CHECK(seen.find("staging") != std::string::npos);
     }
@@ -254,7 +254,7 @@ int main() {
     {
         Fixture fx;
         set_env("KRYPTIC_DISABLED", "true");
-        const auto result = krypticdev::inject();
+        const auto result = kryptic::inject();
         CHECK(result.skipped);
         CHECK(result.reason == "disabled");
     }

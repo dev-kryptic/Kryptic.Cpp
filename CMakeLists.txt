@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(krypticdev VERSION 0.1.0 LANGUAGES CXX)
+project(kryptic-daemon VERSION 0.1.0 LANGUAGES CXX)
 
-add_library(krypticdev
+add_library(kryptic-daemon
     src/json.cpp
-    src/krypticdev.cpp
+    src/kryptic.cpp
 )
-add_library(krypticdev::krypticdev ALIAS krypticdev)
+add_library(kryptic::daemon ALIAS kryptic-daemon)
 
-target_include_directories(krypticdev
+target_include_directories(kryptic-daemon
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
@@ -16,41 +16,41 @@ target_include_directories(krypticdev
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_compile_features(krypticdev PUBLIC cxx_std_17)
+target_compile_features(kryptic-daemon PUBLIC cxx_std_17)
 
 if(WIN32)
-    target_sources(krypticdev PRIVATE src/transport_windows.cpp)
+    target_sources(kryptic-daemon PRIVATE src/transport_windows.cpp)
 else()
-    target_sources(krypticdev PRIVATE src/transport_unix.cpp)
+    target_sources(kryptic-daemon PRIVATE src/transport_unix.cpp)
 endif()
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    option(KRYPTICDEV_BUILD_TESTS "Build krypticdev tests" ON)
+    option(KRYPTIC_DAEMON_BUILD_TESTS "Build kryptic-daemon tests" ON)
 else()
-    option(KRYPTICDEV_BUILD_TESTS "Build krypticdev tests" OFF)
+    option(KRYPTIC_DAEMON_BUILD_TESTS "Build kryptic-daemon tests" OFF)
 endif()
 
-if(KRYPTICDEV_BUILD_TESTS)
+if(KRYPTIC_DAEMON_BUILD_TESTS)
     enable_testing()
-    add_executable(krypticdev_tests tests/kryptic_test.cpp)
-    target_link_libraries(krypticdev_tests PRIVATE krypticdev)
-    target_compile_features(krypticdev_tests PRIVATE cxx_std_17)
+    add_executable(kryptic-daemon-tests tests/kryptic_test.cpp)
+    target_link_libraries(kryptic-daemon-tests PRIVATE kryptic-daemon)
+    target_compile_features(kryptic-daemon-tests PRIVATE cxx_std_17)
     if(NOT WIN32)
         find_package(Threads REQUIRED)
-        target_link_libraries(krypticdev_tests PRIVATE Threads::Threads)
+        target_link_libraries(kryptic-daemon-tests PRIVATE Threads::Threads)
     endif()
-    add_test(NAME krypticdev_tests COMMAND krypticdev_tests)
+    add_test(NAME kryptic-daemon-tests COMMAND kryptic-daemon-tests)
 endif()
 
 include(GNUInstallDirs)
-install(TARGETS krypticdev
-    EXPORT krypticdevTargets
+install(TARGETS kryptic-daemon
+    EXPORT kryptic-daemonTargets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(EXPORT krypticdevTargets
-    FILE krypticdevTargets.cmake
-    NAMESPACE krypticdev::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/krypticdev
+install(EXPORT kryptic-daemonTargets
+    FILE kryptic-daemonTargets.cmake
+    NAMESPACE kryptic::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/kryptic-daemon
 )

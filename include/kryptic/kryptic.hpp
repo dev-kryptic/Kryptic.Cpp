@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace krypticdev {
+namespace kryptic {
 
 // What inject() did.
 struct Result {
@@ -29,4 +29,4 @@ struct Options {
 Result inject();
 Result inject(const Options& options);
 
-}  // namespace krypticdev
+}  // namespace kryptic

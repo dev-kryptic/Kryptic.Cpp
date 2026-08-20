@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace krypticdev {
+namespace kryptic {
 namespace {
 
 bool is_pipe_path(const std::string& path) {
@@ -96,4 +96,4 @@ std::string round_trip(const std::string& line, std::chrono::milliseconds timeou
     return received.substr(0, received.find('\n'));
 }
 
-}  // namespace krypticdev
+}  // namespace kryptic

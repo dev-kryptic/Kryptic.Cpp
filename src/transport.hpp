@@ -3,7 +3,7 @@
 #include <chrono>
 #include <string>
 
-namespace krypticdev {
+namespace kryptic {
 
 std::string socket_path();
 
@@ -11,4 +11,4 @@ std::string socket_path();
 // line (without the trailing newline). Throws std::runtime_error on failure.
 std::string round_trip(const std::string& line, std::chrono::milliseconds timeout);
 
-}  // namespace krypticdev
+}  // namespace kryptic

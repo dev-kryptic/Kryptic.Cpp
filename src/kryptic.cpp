@@ -1,4 +1,4 @@
-#include <krypticdev/krypticdev.hpp>
+#include <kryptic/kryptic.hpp>
 
 #include "json.hpp"
 #include "transport.hpp"
@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #endif
 
-namespace krypticdev {
+namespace kryptic {
 namespace {
 
 constexpr int kProtocolVersion = 1;
@@ -203,4 +203,4 @@ Result inject(const Options& options) {
     }
 }
 
-}  // namespace krypticdev
+}  // namespace kryptic

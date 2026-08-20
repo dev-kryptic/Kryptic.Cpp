@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace krypticdev {
+namespace kryptic {
 namespace json {
 
 // Tiny JSON reader so the SDK stays zero-dependency. Supports exactly what
@@ -30,4 +30,4 @@ Value parse(const std::string& text);
 std::string quote(const std::string& value);
 
 }  // namespace json
-}  // namespace krypticdev
+}  // namespace kryptic

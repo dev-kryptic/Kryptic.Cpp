@@ -1,6 +1,6 @@
-# krypticdev (C++ SDK)
+# kryptic-daemon (C++ daemon client)
 
-Zero-dependency C++17 client. During development startup, `krypticdev::inject()`
+Zero-dependency C++17 client. During development startup, `kryptic::inject()`
 asks the local Kryptic daemon for the current project's secrets and sets them as
 environment variables. Outside development it is a no-op. It never throws: a
 missing daemon means the application simply starts with the environment it
@@ -8,27 +8,27 @@ already has.
 
 ```cmake
 FetchContent_Declare(
-  krypticdev
-  GIT_REPOSITORY https://github.com/dev-kryptic/krypticdev-cpp.git
+  kryptic-daemon
+  GIT_REPOSITORY https://github.com/dev-kryptic/Kryptic.Cpp.git
   GIT_TAG v0.1.0
 )
-FetchContent_MakeAvailable(krypticdev)
-target_link_libraries(your_app PRIVATE krypticdev)
+FetchContent_MakeAvailable(kryptic-daemon)
+target_link_libraries(your_app PRIVATE kryptic-daemon)
 ```
 
 Or as a subdirectory:
 
 ```cmake
-add_subdirectory(path/to/krypticdev-cpp)
-target_link_libraries(your_app PRIVATE krypticdev)
+add_subdirectory(path/to/Kryptic.Cpp)
+target_link_libraries(your_app PRIVATE kryptic-daemon)
 ```
 
 ```cpp
-#include <krypticdev/krypticdev.hpp>
+#include <kryptic/kryptic.hpp>
 #include <cstdlib>
 
 int main() {
-    krypticdev::inject();  // populates the process environment in development
+    kryptic::inject();  // populates the process environment in development
 
     const char* db_url = std::getenv("DATABASE_URL");
 }
@@ -51,7 +51,7 @@ ctest --test-dir build --output-on-failure
 Without CMake:
 
 ```bash
-c++ -std=c++17 -Iinclude -Isrc src/json.cpp src/krypticdev.cpp src/transport_unix.cpp \
-  tests/kryptic_test.cpp -o krypticdev_tests
-./krypticdev_tests
+c++ -std=c++17 -Iinclude -Isrc src/json.cpp src/kryptic.cpp src/transport_unix.cpp \
+  tests/kryptic_test.cpp -o kryptic-daemon-tests
+./kryptic-daemon-tests
 ```

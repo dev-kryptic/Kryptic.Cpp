@@ -12,7 +12,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-namespace krypticdev {
+namespace kryptic {
 namespace {
 
 struct Fd {
@@ -122,4 +122,4 @@ std::string round_trip(const std::string& line, std::chrono::milliseconds timeou
     return received.substr(0, received.find('\n'));
 }
 
-}  // namespace krypticdev
+}  // namespace kryptic
