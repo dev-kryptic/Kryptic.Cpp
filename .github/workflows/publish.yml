@@ -1,0 +1,114 @@
+name: Test and release
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Incoming version override (leave empty to use CMake project VERSION)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  release:
+    needs: test
+    if: >
+      github.actor != 'github-actions[bot]' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve package version
+        id: version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          TAG_NAME: ${{ github.ref_name }}
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ -n "${INPUT_VERSION:-}" ]; then
+            INCOMING="$INPUT_VERSION"
+          elif [ "$EVENT_NAME" = "push" ] && [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            INCOMING="${TAG_NAME#v}"
+          else
+            INCOMING=""
+          fi
+          VERSION="$(python3 .github/scripts/resolve-package-version.py "${INCOMING}")"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Resolved package version: ${VERSION}"
+
+      - name: Tag and push
+        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, pathlib, re
+          path = pathlib.Path("CMakeLists.txt")
+          version = os.environ["VERSION"]
+          text = path.read_text(encoding="utf-8")
+          updated, count = re.subn(
+              r"(project\(\s*kryptic-daemon-client\s+VERSION\s+)\d+\.\d+\.\d+",
+              rf"\g<1>{version}",
+              text,
+              count=1,
+              flags=re.IGNORECASE,
+          )
+          if count != 1:
+              raise SystemExit("Expected exactly one project VERSION in CMakeLists.txt")
+          path.write_text(updated, encoding="utf-8")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- CMakeLists.txt; then
+            git add CMakeLists.txt
+            git commit -m "chore: release ${VERSION}"
+            git push
+          fi
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag ${TAG} already exists"
+          else
+            git tag -a "$TAG" -m "Release ${VERSION}"
+            git push origin "$TAG"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          generate_release_notes: true

@@ -1,4 +1,4 @@
-# kryptic-daemon (C++ daemon client)
+# kryptic-daemon-client (C++)
 
 Zero-dependency C++17 client. During development startup, `kryptic::inject()`
 asks the local Kryptic daemon for the current project's secrets and sets them as
@@ -8,19 +8,19 @@ already has.
 
 ```cmake
 FetchContent_Declare(
-  kryptic-daemon
+  kryptic-daemon-client
   GIT_REPOSITORY https://github.com/dev-kryptic/Kryptic.Cpp.git
   GIT_TAG v0.1.0
 )
-FetchContent_MakeAvailable(kryptic-daemon)
-target_link_libraries(your_app PRIVATE kryptic-daemon)
+FetchContent_MakeAvailable(kryptic-daemon-client)
+target_link_libraries(your_app PRIVATE kryptic-daemon-client)
 ```
 
 Or as a subdirectory:
 
 ```cmake
 add_subdirectory(path/to/Kryptic.Cpp)
-target_link_libraries(your_app PRIVATE kryptic-daemon)
+target_link_libraries(your_app PRIVATE kryptic-daemon-client)
 ```
 
 ```cpp
@@ -52,6 +52,6 @@ Without CMake:
 
 ```bash
 c++ -std=c++17 -Iinclude -Isrc src/json.cpp src/kryptic.cpp src/transport_unix.cpp \
-  tests/kryptic_test.cpp -o kryptic-daemon-tests
-./kryptic-daemon-tests
+  tests/kryptic_test.cpp -o kryptic-daemon-client-tests
+./kryptic-daemon-client-tests
 ```
