@@ -70,9 +70,6 @@ def main() -> None:
     if published is None:
         resolved = incoming
         reason = "first release, keep incoming version"
-    elif incoming == published:
-        resolved = incoming
-        reason = "tag already exists, keep incoming version"
     elif incoming[0] != published[0] or incoming[1] != published[1]:
         resolved = incoming
         reason = "major or minor changed, keep incoming version"
